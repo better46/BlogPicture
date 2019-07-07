@@ -30,10 +30,10 @@ def list_img_file(directory):
     # print old_list
     new_list = []
     for filename in old_list:
-        name,fileformat = filename.split(".")
+        name, fileformat = filename.split(".")
         if fileformat.lower() == "jpg" or fileformat.lower() == "png" or fileformat.lower() == "gif":
             new_list.append(filename)
-    #print new_list
+    # print new_list
     return new_list
 
 
@@ -48,7 +48,7 @@ def print_help():
 
 def compress(choose, des_dir, src_dir, file_list):
     """压缩算法，img.thumbnail对图片进行压缩，
-
+    
     参数
     -----------
     choose: str
@@ -71,8 +71,8 @@ def compress(choose, des_dir, src_dir, file_list):
 def compress_photo():
     '''调用压缩图片的函数
     '''
-    src_dir, des_dir = "../photos/", "../min_photos/"
-
+    src_dir, des_dir = "photos/", "min_photos/"
+    
     if directory_exists(src_dir):
         if not directory_exists(src_dir):
             make_directory(src_dir)
@@ -87,23 +87,26 @@ def compress_photo():
     for i in range(len(file_list_des)):
         if file_list_des[i] in file_list_src:
             file_list_src.remove(file_list_des[i])
+    if len(file_list_src) == 0:
+        print("=====没有新文件需要压缩=======")
     compress('4', des_dir, src_dir, file_list_src)
 
 def handle_photo():
     '''根据图片的文件名处理成需要的json格式的数据
-
+    
     -----------
     最后将data.json文件存到博客的source/photos文件夹下
     '''
-    src_dir, des_dir = "../photos/", "../min_photos/"
+    src_dir, des_dir = "photos/", "min_photos/"
     file_list = list_img_file(src_dir)
     list_info = []
+    file_list.sort(key=lambda x: x.split('_')[0])   # 按照日期排序
     for i in range(len(file_list)):
         filename = file_list[i]
         date_str, info = filename.split("_")
         info, _ = info.split(".")
         date = datetime.strptime(date_str, "%Y-%m-%d")
-        year_month = date_str[0:7]
+        year_month = date_str[0:7]            
         if i == 0:  # 处理第一个文件
             new_dict = {"date": year_month, "arr":{'year': date.year,
                                                                    'month': date.month,
@@ -111,7 +114,7 @@ def handle_photo():
                                                                    'text': [info],
                                                                    'type': ['image']
                                                                    }
-                                        }
+                                        } 
             list_info.append(new_dict)
         elif year_month != list_info[-1]['date']:  # 不是最后的一个日期，就新建一个dict
             new_dict = {"date": year_month, "arr":{'year': date.year,
@@ -128,16 +131,16 @@ def handle_photo():
             list_info[-1]['arr']['type'].append('image')
     list_info.reverse()  # 翻转
     final_dict = {"list": list_info}
-    with open("../../hexo/source/photos/data.json","w") as fp:
+    with open("../lawlite19.github.io/source/photos/data.json","w") as fp:
         json.dump(final_dict, fp)
 
 def cut_photo():
     """裁剪算法
-
+    
     ----------
     调用Graphics类中的裁剪算法，将src_dir目录下的文件进行裁剪（裁剪成正方形）
     """
-    src_dir = "../photos/"
+    src_dir = "photos/"
     if directory_exists(src_dir):
         if not directory_exists(src_dir):
             make_directory(src_dir)
@@ -148,18 +151,18 @@ def cut_photo():
             print_help()
             for infile in file_list:
                 img = Image.open(src_dir+infile)
-                Graphics(infile=src_dir+infile, outfile=src_dir + infile).cut_by_ratio()
+                Graphics(infile=src_dir+infile, outfile=src_dir + infile).cut_by_ratio()            
         else:
             pass
     else:
-        print("source directory not exist!")
+        print("source directory not exist!")     
 
 
 
 def git_operation():
     '''
     git 命令行函数，将仓库提交
-
+    
     ----------
     需要安装git命令行工具，并且添加到环境变量中
     '''
